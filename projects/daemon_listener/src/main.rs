@@ -1,13 +1,14 @@
 use std::io;
 use std::io::Write;
 fn main() {
+    //variables que no se reinician en el loop
+    let mut system_online: bool = false;
+
     loop {
         // variables
 
         //variable mutable que se adapta al input del usuario
         let mut prompt = String::new();
-        //donde vamos a guardar la variable del usuario sin espacios
-        let trimmed_prompt: &str;
 
         // el prompt que el usuario ve, no podemos usar el macro de print! solamente por que no se imprime, a menos que lo forcemos
         print!("OVR > ");
@@ -21,20 +22,27 @@ fn main() {
             //si por alguna extraña razon falla el prompt
             .expect("no se pudo leer el prompt");
 
-        //como trim me devuelve &str, guardamos el result en una variable de tipo &str
-        trimmed_prompt = prompt.trim();
+        // shadowing al parecer, me deja usar el mismo nombre de la variable que vamos a cambiar como si fuera una nueva
+        // no termino de entender muy bien como funciona pero si hace el codigo mas rapido no importa
+        let prompt = prompt.trim();
 
         //al parecer String y &str no son lo mismo, uno crece, el otro no, por eso usamos &prompt[..] para pasar de String > &str y que puedan hacer match los types
-        match trimmed_prompt {
+        match prompt {
             //comparamos
             "start" => {
-                println!("Inicializando sistema...");
-                println!("Sistemas en Linea.");
+                system_online = true;
+                println!("Encendiendo Daemon...");
+            }
+            "stop" => {
+                system_online = false;
+                println!("Apagando Daemon...");
             }
             "status" => {
-                println!("CPU: OK");
-                println!("RAM: OK");
-                println!("DISK: OK");
+                if system_online == true {
+                    println!("Estado del daemon: [ ENCENDIDO ]");
+                } else if system_online == false {
+                    println!("Estado del daemon: [ APAGADO ]");
+                }
             }
             "exit" => {
                 println!("Nos vemos!");
