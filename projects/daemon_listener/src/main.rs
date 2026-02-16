@@ -1,8 +1,19 @@
+// crates
 use std::io;
 use std::io::Write;
+
+//primera dependencia externa que uso en rust
+
+use sysinfo::System;
+
 fn main() {
     //variables que no se reinician en el loop
     let mut system_online: bool = false;
+
+    // segun el doc, usamos esta variable con "new_all" para asegurarnos que todas las listas y procesos del procesador esten llenos (?)
+    // quizas lo este traduciendo muy directamente, unicamente debe ser para que el programa reconozca todo
+
+    let mut system_gen = System::new_all();
 
     loop {
         // variables
@@ -38,11 +49,7 @@ fn main() {
                 println!("Apagando Daemon...");
             }
             "status" => {
-                if system_online == true {
-                    println!("Estado del daemon: [ ENCENDIDO ]");
-                } else if system_online == false {
-                    println!("Estado del daemon: [ APAGADO ]");
-                }
+                show_status(system_online, &mut system_gen);
             }
             "exit" => {
                 println!("Nos vemos!");
@@ -50,5 +57,29 @@ fn main() {
             }
             _ => println!("Comando invalido"),
         }
+    }
+}
+
+fn show_status(val: bool, sys: &mut System) {
+    if val {
+        //recargamos el sistema
+        sys.refresh_all();
+
+        println!(
+            "Sistema:        {}",
+            System::host_name().unwrap_or("Desconocido".to_string())
+        );
+        println!("CPUs:           {}", sys.cpus().len());
+        println!(
+            "RAM TOTAL:      {} GB",
+            sys.total_memory() / 1024 / 1024 / 1024
+        );
+        println!(
+            "RAM USADA:      {} GB",
+            sys.used_memory() / 1024 / 1024 / 1024
+        );
+        println!()
+    } else {
+        println!("El daemon esta apagado.")
     }
 }
